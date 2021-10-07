@@ -1,35 +1,61 @@
 class Node:
-    def __init__(self, value):
-        self.value = value
-        self.next = None
-        self.previous = None
+    def __init__(self, data, prev=None, next=None):
+        self.data = data
+        if prev is None:
+            self.prev = None
+        else:
+            self.prev = prev
+        if next is None:
+            self.next = None
+        else:
+            self.next = next
 
-class LinkedList:
+    def __str__(self):
+        return 'NODE : ' + str(self.data)
+
+
+class DoublyLinkedList:
     def __init__(self):
-        self.head = None
-        self.tail = None
+        self.head = Node(None, None, None)
+        self.tail = Node(None, None, None)
+        self.head.next = self.tail
+        self.tail.prev = self.head
         self.ssize = 0
+
     def __str__(self):
         if self.isEmpty():
             return "Empty"
-        cur, s = self.head, str(self.head.value) + " "
-        while cur.next != None:
-            s += str(cur.next.value) + " "
-            cur = cur.next
+        s = ""
+        p = self.head.next
+        while p.next is not None:
+            s += str(p.data) + " "
+            p = p.next
         return s
 
     def reverse(self):
         if self.isEmpty():
             return "Empty"
-        cur, s = self.tail, str(self.tail.value) + " "
-        while cur.previous != None:
-            s += str(cur.previous.value) + " "
-            cur = cur.previous
+        s = ""
+        p = self.tail.prev
+        while p.prev is not None:
+            s += str(p.data) + " "
+            p = p.prev
         return s
 
+    def size(self):
+        '''
+        p = self.head.next
+        count = 0
+        while p != self.tail:
+            count += 1
+            p = p.next
+        return count
+        '''
+        return self.ssize
+
     def isEmpty(self):
-        return self.head == None
-        
+        return self.size() == 0
+
     def nodeAt(self, index):
         if index >= -1:
             if index > self.size()-1:
@@ -46,26 +72,37 @@ class LinkedList:
             for _ in range(-1, index):
                 p = p.prev
             return p        # return Node
-    def append(self, item):
-        self.insert(self.size(), item)
 
-    def addHead(self, item):
-       self.insert(0, item)
 
-    def insert(self, pos, item):
-       prevNode = self.nodeAt(pos-1)  
-       newNode = Node(item, prevNode, prevNode.next)
-       prevNode.next = newNode.next.prev = newNode
+    def append(self, data):
+        self.insert(self.size(), data)
 
-    def search(self, item):
-         p = self.head.next
-         while p is not None:
+    def addHead(self, data):
+        self.insert(0, data)
+
+    def insert(self, index, data):
+        # stored node
+        prevNode = self.nodeAt(index-1)  # if index = 0 current node will be self.head
+        # new node
+        newNode = Node(data, prevNode, prevNode.next)
+        prevNode.next = newNode.next.prev = newNode
+        '''
+        print('NOW', newNode.data)
+        print('NEXT', newNode.next.data)
+        print('PRE', newNode.prev.data)
+        print('___')
+        '''
+        self.ssize += 1
+
+    def search(self, data):
+        p = self.head.next
+        while p is not None:
             if p.data == data:
                 return 'Found'
             p = p.next
-         return 'Not Found'
+        return 'Not Found'
 
-    def index(self, item):
+    def indexOf(self, data):
         p = self.head.next
         for i in range(self.size()):
             if p.data == data:
@@ -73,10 +110,7 @@ class LinkedList:
             p = p.next
         return -1
 
-    def size(self):
-        return self.ssize
-
-    def pop(self, pos):
+    def pop(self, index):
         if not 0 <= index < self.size():
             return 'Out of Range'
         # store node
@@ -88,7 +122,8 @@ class LinkedList:
         self.ssize -= 1
         return 'Success'
 
-L = LinkedList()
+# AP I,AP Love,AP KMITL,AP 2020
+L = DoublyLinkedList()
 inp = input('Enter Input : ').split(',')
 for i in inp:
     if i[:2] == "AP":
@@ -100,7 +135,7 @@ for i in inp:
     elif i[:2] == "SI":
         print("Linked List size = {0} : {1}".format(L.size(), L))
     elif i[:2] == "ID":
-        print("Index ({0}) = {1} : {2}".format(i[3:], L.index(i[3:]), L))
+        print("Index ({0}) = {1} : {2}".format(i[3:], L.indexOf(i[3:]), L))
     elif i[:2] == "PO":
         before = "{}".format(L)
         k = L.pop(int(i[3:]))
